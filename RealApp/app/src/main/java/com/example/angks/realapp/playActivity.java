@@ -37,12 +37,13 @@ public class playActivity extends Activity implements View.OnClickListener {
             mp=null;
         return mp;
     }
-    AsyncTask<Void, Integer, Integer> bg = new AsyncTask<Void, Integer, Integer>() {
+    public class BackGround extends AsyncTask<Void, Integer, Integer> {
         int totalDuration = 0;
         int currentPosition = 0;
 
         @Override
         protected Integer doInBackground(Void... params) {
+            Log.d("new Thread","start");
             while (true) {
                 if (getMp(-1) != null) {
                     totalDuration = getMp(-1).getDuration();
@@ -84,21 +85,16 @@ public class playActivity extends Activity implements View.OnClickListener {
 
         }
     };
-
+    BackGround bg;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
         visualInit();
         musicSetting(-1);
+        bg=new BackGround();
         bg.execute();
         getMp(-1).start();
-        getMp(-1).setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mpl) {
-
-            }
-        });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int temp = 0;
 
@@ -163,6 +159,12 @@ public class playActivity extends Activity implements View.OnClickListener {
             case R.id.leftBtn:
                 if (!flag)
                     break;
+                else{
+                    flag=false;
+                }
+                if(bg.getStatus()== AsyncTask.Status.RUNNING)
+                    bg.cancel(true);
+
                 if (getMp(-1) != null) {
                     if (getMp(-1).isPlaying()) {
                         getMp(-1).stop();
@@ -172,22 +174,28 @@ public class playActivity extends Activity implements View.OnClickListener {
                     musicSetting(position);
                     position = (position - 1 < 0) ? mySongs.size() - 1 : position - 1;
                     getMp(-1).start();
+                    bg=new BackGround();
+                    bg.execute();
                 }
-
+                flag=true;
                 break;
             case R.id.playBtn:
                 if (getMp(-1).isPlaying()) {
                     //일시정지 이미지 붙이기
-                    playBtn.setImageResource(R.drawable.play_btn);
+                    playBtn.setImageResource(R.drawable.pause);
                     getMp(-1).pause();
                 } else {
-                    playBtn.setImageResource(R.drawable.play_btn);
+                    playBtn.setImageResource(R.drawable.start);
                     getMp(-1).start();
                 }
                 break;
             case R.id.rightBtn:
                 if (!flag)
                     break;
+                else
+                    flag=false;
+                if(bg.getStatus()== AsyncTask.Status.RUNNING)
+                    bg.cancel(true);
                 if (getMp(-1) != null) {
                     if (getMp(-1).isPlaying()) {
                         getMp(-1).stop();
@@ -197,7 +205,10 @@ public class playActivity extends Activity implements View.OnClickListener {
                     position = (position + 1) % mySongs.size();
                     musicSetting(position);
                     getMp(-1).start();
+                    bg=new BackGround();
+                    bg.execute();
                 }
+                flag=true;
                 break;
         }
     }
