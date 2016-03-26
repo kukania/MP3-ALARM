@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context="com.example.angks.realapp.MediaListAcitivity">
     <LinearLayout
-        android:background="#dfdfdf"
+        android:background="#bacce0"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -14,13 +14,14 @@
         <ImageButton
             android:id="@+id/backBtn"
             android:src="@drawable/back"
-            android:background="#dfdfdf"
+            android:background="#bacce0"
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:onClick="onClick"
             />
         <TextView
+            android:textColor="#ffffff"
             android:text="MUSIC LIST"
             android:layout_width="0dp"
             android:layout_weight="8"
@@ -36,11 +37,13 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:divider="@drawable/line_divider"
         android:layout_weight="20"
+        android:background="#f9e5e6"
         >
     </ListView>
     <LinearLayout
-        android:background="#dfdfdf"
+        android:background="#bacce0"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -57,6 +60,7 @@
             android:orientation="vertical"
             android:layout_height="match_parent">
             <TextView
+                android:textColor="#ffffff"
                 android:id="@+id/playTitle"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -65,6 +69,7 @@
                 android:gravity="center_vertical"
                 />
             <TextView
+                android:textColor="#ffffff"
                 android:layout_marginBottom="10dp"
                 android:id="@+id/playArtist"
                 android:layout_width="match_parent"

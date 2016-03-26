@@ -4,7 +4,7 @@
     android:orientation="vertical"
     tools:context="com.example.angks.realapp.playActivity">
     <LinearLayout
-        android:background="#dfdfdf"
+        android:background="#bacce0"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -13,13 +13,14 @@
         <ImageButton
             android:id="@+id/listBtn"
             android:src="@drawable/list"
-            android:background="#dfdfdf"
+            android:background="#bacce0"
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:onClick="onClick"
             />
         <TextView
+            android:textColor="#ffffff"
             android:text="MUSIC"
             android:layout_width="0dp"
             android:layout_weight="8"
@@ -32,7 +33,7 @@
             android:layout_height="match_parent" />
     </LinearLayout>
     <LinearLayout
-        android:background="#ff2288"
+        android:background="#f9e5e6"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="21"
@@ -54,7 +55,7 @@
                 android:textSize="35dp"
                 android:singleLine="true"
                 android:gravity="center"
-                android:textColor="#ffffff"
+                android:textColor="#999999"
                 />
             <TextView
                 android:id="@+id/playArtist"
@@ -64,7 +65,7 @@
                 android:text="test"
                 android:singleLine="true"
                 android:gravity="center"
-                android:textColor="#ffffff"
+                android:textColor="#999999"
                 />
         </LinearLayout>
         <!-- Controller-->
