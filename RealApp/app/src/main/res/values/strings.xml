@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">RealApp</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_media_list_acitivity">MediaListAcitivity</string>
+    <string name="title_activity_play">playActivity</string>
+</resources>
