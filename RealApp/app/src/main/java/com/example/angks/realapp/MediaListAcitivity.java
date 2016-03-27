@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,8 +32,10 @@ public class MediaListAcitivity extends Activity {
     ImageView albermCover;
     TextView playingTitle;
     TextView playingArtist;
+    int mPosition=-1;
     final ArrayList<File> mySongs = findSongs(Environment.getExternalStorageDirectory());
     class ViewHolder{
+        public LinearLayout parent;
         public TextView title;
         public TextView artist;
     }
@@ -71,7 +74,7 @@ public class MediaListAcitivity extends Activity {
     }
     public void showList(){
         lv=(ListView)findViewById(R.id.listView);
-        BaseAdapter adapter=new BaseAdapter() {
+        final BaseAdapter adapter=new BaseAdapter() {
             Context mContext=myContetxt;
             ArrayList<MusicWrapper> list=items;
             @Override
@@ -96,7 +99,7 @@ public class MediaListAcitivity extends Activity {
                     holder=new ViewHolder();
                     LayoutInflater inflater=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     convertView=inflater.inflate(R.layout.one_list,null);
-
+                    holder.parent=(LinearLayout)convertView;
                     holder.title=(TextView)convertView.findViewById(R.id.title);
                     holder.artist=(TextView)convertView.findViewById(R.id.artist);
                     convertView.setTag(holder);
@@ -104,6 +107,10 @@ public class MediaListAcitivity extends Activity {
                 else{
                     holder=(ViewHolder)convertView.getTag();
                 }
+                if(mPosition==position)
+                    holder.parent.setBackgroundColor(Color.parseColor("#9d7087"));
+                else
+                    holder.parent.setBackgroundColor(Color.parseColor("#ffffff"));
                 holder.title.setText(list.get(position).title);
                 holder.artist.setText(list.get(position).artist);
                 return convertView;
@@ -116,6 +123,8 @@ public class MediaListAcitivity extends Activity {
                 playingTitle.setText(items.get(position).title);
                 playingArtist.setText(items.get(position).artist);
                 Intent intent=new Intent(getApplicationContext(),playActivity.class);
+                mPosition=position;
+                adapter.notifyDataSetChanged();
                 intent.putExtra("pos",position);
                 intent.putExtra("songList",mySongs);
                 intent.putExtra("title",items.get(position).title);
