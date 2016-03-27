@@ -32,6 +32,7 @@ public class MediaListAcitivity extends Activity {
     ImageView albermCover;
     TextView playingTitle;
     TextView playingArtist;
+    boolean flag=false;
     int mPosition=-1;
     final ArrayList<File> mySongs = findSongs(Environment.getExternalStorageDirectory());
     class ViewHolder{
@@ -130,6 +131,18 @@ public class MediaListAcitivity extends Activity {
                 intent.putExtra("title",items.get(position).title);
                 intent.putExtra("artist",items.get(position).artist);
                 intent.putExtra("MusicWrapper",items);
+                if(flag){
+                    SharedPreferences pref=getSharedPreferences("MUSIC",MODE_PRIVATE);
+                    SharedPreferences.Editor editor=pref.edit();
+                    editor.putInt("pos",position);
+                    editor.putString("title",items.get(position).title);
+                    editor.putString("artist",items.get(position).artist);
+                    editor.commit();
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                }
+                else{
+                    flag=true;
+                }
                 startActivity(intent);
             }
         });

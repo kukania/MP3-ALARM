@@ -30,30 +30,28 @@ public class playActivity extends Activity implements View.OnClickListener {
     ArrayList<MusicWrapper> item;
     int position;
     ImageView playBtn;
+    boolean isNew = true;
     Uri u;
     boolean flag = true;
-    public synchronized MediaPlayer getMp(int n){
-        if(n==0)
-            mp=null;
+
+    public synchronized MediaPlayer getMp(int n) {
+        if (n == 0)
+            mp = null;
         return mp;
     }
+
     public class BackGround extends AsyncTask<Void, Integer, Integer> {
         int totalDuration = 0;
         int currentPosition = 0;
 
         @Override
         protected Integer doInBackground(Void... params) {
-            Log.d("new Thread","start");
+            Log.d("new Thread", "start");
             while (true) {
                 if (getMp(-1) != null) {
                     totalDuration = getMp(-1).getDuration();
                 }
                 while (currentPosition <= totalDuration && flag) {
-                    try {
-                        Thread.sleep(700);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     if (getMp(-1) != null)
                         if (getMp(-1).isPlaying()) {
                             totalDuration = getMp(-1).getDuration();
@@ -84,15 +82,24 @@ public class playActivity extends Activity implements View.OnClickListener {
             }
 
         }
-    };
+    }
+
+    ;
     BackGround bg;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
         visualInit();
+        if (getMp(-1) != null) {
+            if (getMp(-1).isPlaying()) {
+                getMp(-1).stop();
+            }
+            getMp(-1).release();
+        }
         musicSetting(-1);
-        bg=new BackGround();
+        bg = new BackGround();
         bg.execute();
         getMp(-1).start();
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -112,7 +119,7 @@ public class playActivity extends Activity implements View.OnClickListener {
                     getMp(-1).seekTo(seekBar.getProgress() - 2000);
                 else
                     getMp(-1).seekTo(seekBar.getProgress());
-                Log.d("test",sb.getProgress()+"/"+sb.getMax());
+                Log.d("test", sb.getProgress() + "/" + sb.getMax());
             }
         });
     }
@@ -137,11 +144,11 @@ public class playActivity extends Activity implements View.OnClickListener {
         }
         title.setText(item.get(position).title);
         artist.setText(item.get(position).artist);
-        SharedPreferences pref=getSharedPreferences("text",MODE_PRIVATE);
-        SharedPreferences.Editor editor=pref.edit();
+        SharedPreferences pref = getSharedPreferences("text", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
 
-        editor.putString("title",item.get(position).title);
-        editor.putString("artist",item.get(position).artist);
+        editor.putString("title", item.get(position).title);
+        editor.putString("artist", item.get(position).artist);
         editor.commit();
         u = Uri.parse(mySongs.get(position).toString());
         mp = MediaPlayer.create(getApplicationContext(), u);
@@ -152,17 +159,20 @@ public class playActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()) {
             case R.id.listBtn:
-                finish();
+                intent = new Intent(this, MediaListAcitivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 break;
             case R.id.leftBtn:
                 if (!flag)
                     break;
-                else{
-                    flag=false;
+                else {
+                    flag = false;
                 }
-                if(bg.getStatus()== AsyncTask.Status.RUNNING)
+                if (bg.getStatus() == AsyncTask.Status.RUNNING)
                     bg.cancel(true);
 
                 if (getMp(-1) != null) {
@@ -174,10 +184,10 @@ public class playActivity extends Activity implements View.OnClickListener {
                     musicSetting(position);
                     position = (position - 1 < 0) ? mySongs.size() - 1 : position - 1;
                     getMp(-1).start();
-                    bg=new BackGround();
+                    bg = new BackGround();
                     bg.execute();
                 }
-                flag=true;
+                flag = true;
                 break;
             case R.id.playBtn:
                 if (getMp(-1).isPlaying()) {
@@ -193,8 +203,8 @@ public class playActivity extends Activity implements View.OnClickListener {
                 if (!flag)
                     break;
                 else
-                    flag=false;
-                if(bg.getStatus()== AsyncTask.Status.RUNNING)
+                    flag = false;
+                if (bg.getStatus() == AsyncTask.Status.RUNNING)
                     bg.cancel(true);
                 if (getMp(-1) != null) {
                     if (getMp(-1).isPlaying()) {
@@ -205,11 +215,48 @@ public class playActivity extends Activity implements View.OnClickListener {
                     position = (position + 1) % mySongs.size();
                     musicSetting(position);
                     getMp(-1).start();
-                    bg=new BackGround();
+                    bg = new BackGround();
                     bg.execute();
                 }
-                flag=true;
+                flag = true;
                 break;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isNew) {
+            if (bg.getStatus() == AsyncTask.Status.RUNNING)
+                bg.cancel(true);
+            SharedPreferences pref = getSharedPreferences("MUSIC", MODE_PRIVATE);
+            String tt = pref.getString("title", "");
+            String att = pref.getString("artist", "");
+            title.setText(tt);
+            artist.setText(att);
+            position=pref.getInt("pos",-1);
+            if (getMp(-1) != null) {
+                if (getMp(-1).isPlaying()) {
+                    getMp(-1).stop();
+                }
+                getMp(-1).release();
+                getMp(0);
+            }
+            musicSetting(position);
+            getMp(-1).start();
+            bg = new BackGround();
+            bg.execute();
+        }
+        else
+            isNew=false;
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent;
+        intent = new Intent(this, MediaListAcitivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
     }
 }
