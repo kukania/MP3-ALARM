@@ -25,6 +25,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 startActivity(intent);
                 break;
             case R.id.AlarmBtn:
+                intent=new Intent(MainActivity.this,AlarmListActivity.class);
+                startActivity(intent);
                 break;
             case R.id.LightBtn:
                 break;

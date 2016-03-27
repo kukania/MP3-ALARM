@@ -5,4 +5,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_media_list_acitivity">MediaListAcitivity</string>
     <string name="title_activity_play">playActivity</string>
+    <string name="title_activity_alarm_list">AlarmListActivity</string>
+    <string name="title_activity_alarm_add">AlarmAddActivity</string>
 </resources>

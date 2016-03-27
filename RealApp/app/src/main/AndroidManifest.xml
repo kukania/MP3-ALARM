@@ -26,6 +26,15 @@
             android:name=".playActivity"
             android:label="@string/title_activity_play" >
         </activity>
+        <activity
+            android:name=".AlarmListActivity"
+            android:label="@string/title_activity_alarm_list" >
+        </activity>
+        <activity
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:name=".AlarmAddActivity"
+            android:label="@string/title_activity_alarm_add" >
+        </activity>
     </application>
 
 </manifest>
