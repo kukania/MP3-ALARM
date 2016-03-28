@@ -27,57 +27,71 @@ import java.util.ArrayList;
 
 public class MediaListAcitivity extends Activity {
     ListView lv;
-    ArrayList<MusicWrapper>items;
-    Context myContetxt=this;
+    ArrayList<MusicWrapper> items;
+    Context myContetxt = this;
     ImageView albermCover;
     TextView playingTitle;
     TextView playingArtist;
-    boolean flag=false;
-    int mPosition=-1;
-    final ArrayList<File> mySongs = findSongs(Environment.getExternalStorageDirectory());
-    class ViewHolder{
+    boolean flag = false;
+    int mPosition = -1;
+    ArrayList<File> mySongs = new ArrayList<File>();
+
+    class ViewHolder {
         public LinearLayout parent;
         public TextView title;
         public TextView artist;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_list_acitivity);
+        Intent intent=getIntent();
+        Bundle b = intent.getExtras();
+        try{
+            mySongs=(ArrayList) b.getParcelableArrayList("songList");
+        }
+        catch (NullPointerException e){
+            mySongs=findSongs(Environment.getExternalStorageDirectory());
+        }
         init();
         showList();
     }
 
-    public void init(){
-        albermCover=(ImageView)findViewById(R.id.albermCover);
-        playingTitle=(TextView)findViewById(R.id.playTitle);
-        playingArtist=(TextView)findViewById(R.id.playArtist);
-        ImageButton backBtn=(ImageButton)findViewById(R.id.backBtn);
+    public void init() {
+        albermCover = (ImageView) findViewById(R.id.albermCover);
+        playingTitle = (TextView) findViewById(R.id.playTitle);
+        playingArtist = (TextView) findViewById(R.id.playArtist);
+        ImageButton backBtn = (ImageButton) findViewById(R.id.backBtn);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent();
+                setResult(1, intent);
                 finish();
             }
         });
-        items=new ArrayList<MusicWrapper>();
+        items = new ArrayList<MusicWrapper>();
 
-        for(int i = 0; i<mySongs.size(); i++){
-            String []temp = (mySongs.get(i).getName().toString()).split("-");
-            MusicWrapper tempW=new MusicWrapper();
-            tempW.artist=temp[0];
-            for(int j=1; j<temp.length; j++){
-                if(temp[j]==null)
+        for (int i = 0; i < mySongs.size(); i++) {
+            String[] temp = (mySongs.get(i).getName().toString()).split("-");
+            MusicWrapper tempW = new MusicWrapper();
+            tempW.artist = temp[0];
+            for (int j = 1; j < temp.length; j++) {
+                if (temp[j] == null)
                     continue;
-                tempW.title+=temp[j];
+                tempW.title += temp[j];
             }
             items.add(tempW);
         }
     }
-    public void showList(){
-        lv=(ListView)findViewById(R.id.listView);
-        final BaseAdapter adapter=new BaseAdapter() {
-            Context mContext=myContetxt;
-            ArrayList<MusicWrapper> list=items;
+
+    public void showList() {
+        lv = (ListView) findViewById(R.id.listView);
+        final BaseAdapter adapter = new BaseAdapter() {
+            Context mContext = myContetxt;
+            ArrayList<MusicWrapper> list = items;
+
             @Override
             public int getCount() {
                 return list.size();
@@ -96,19 +110,18 @@ public class MediaListAcitivity extends Activity {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 ViewHolder holder;
-                if(convertView==null){
-                    holder=new ViewHolder();
-                    LayoutInflater inflater=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    convertView=inflater.inflate(R.layout.one_list,null);
-                    holder.parent=(LinearLayout)convertView;
-                    holder.title=(TextView)convertView.findViewById(R.id.title);
-                    holder.artist=(TextView)convertView.findViewById(R.id.artist);
+                if (convertView == null) {
+                    holder = new ViewHolder();
+                    LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = inflater.inflate(R.layout.one_list, null);
+                    holder.parent = (LinearLayout) convertView;
+                    holder.title = (TextView) convertView.findViewById(R.id.title);
+                    holder.artist = (TextView) convertView.findViewById(R.id.artist);
                     convertView.setTag(holder);
+                } else {
+                    holder = (ViewHolder) convertView.getTag();
                 }
-                else{
-                    holder=(ViewHolder)convertView.getTag();
-                }
-                if(mPosition==position)
+                if (mPosition == position)
                     holder.parent.setBackgroundColor(Color.parseColor("#9d7087"));
                 else
                     holder.parent.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -123,51 +136,48 @@ public class MediaListAcitivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 playingTitle.setText(items.get(position).title);
                 playingArtist.setText(items.get(position).artist);
-                Intent intent=new Intent(getApplicationContext(),playActivity.class);
-                mPosition=position;
+                Intent intent = new Intent(getApplicationContext(), playActivity.class);
+                mPosition = position;
                 adapter.notifyDataSetChanged();
-                intent.putExtra("pos",position);
-                intent.putExtra("songList",mySongs);
-                intent.putExtra("title",items.get(position).title);
-                intent.putExtra("artist",items.get(position).artist);
-                intent.putExtra("MusicWrapper",items);
-                if(flag){
-                    SharedPreferences pref=getSharedPreferences("MUSIC",MODE_PRIVATE);
-                    SharedPreferences.Editor editor=pref.edit();
-                    editor.putInt("pos",position);
-                    editor.putString("title",items.get(position).title);
-                    editor.putString("artist",items.get(position).artist);
-                    editor.commit();
-                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                }
-                else{
-                    flag=true;
-                }
+                intent.putExtra("pos", position);
+                intent.putExtra("songList", mySongs);
+                intent.putExtra("title", items.get(position).title);
+                intent.putExtra("artist", items.get(position).artist);
+                intent.putExtra("MusicWrapper", items);
+                SharedPreferences pref = getSharedPreferences("MUSIC", MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("pos", position);
+                editor.putString("title", items.get(position).title);
+                editor.putString("artist", items.get(position).artist);
+                editor.commit();
+                setResult(0, intent);
                 startActivity(intent);
+                finish();
             }
         });
     }
+
     public ArrayList<File> findSongs(File root) {
         ArrayList<File> al = new ArrayList<File>();
         File[] files = root.listFiles();
         for (File singleFile : files) {
-            if (singleFile.isDirectory() && !singleFile.isHidden()){
+            if (singleFile.isDirectory() && !singleFile.isHidden()) {
                 al.addAll(findSongs(singleFile));
-            }
-            else{
-                if(singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")){
+            } else {
+                if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
                     al.add(singleFile);
                 }
             }
         }
         return al;
     }
+
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-        SharedPreferences pref=getSharedPreferences("text",MODE_PRIVATE);
-        String tt=pref.getString("title", "");
-        String att=pref.getString("artist","");
+        SharedPreferences pref = getSharedPreferences("text", MODE_PRIVATE);
+        String tt = pref.getString("title", "");
+        String att = pref.getString("artist", "");
         playingTitle.setText(tt);
         playingArtist.setText(att);
     }

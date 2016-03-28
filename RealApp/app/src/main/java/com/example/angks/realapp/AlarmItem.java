@@ -12,6 +12,7 @@ public class AlarmItem implements Parcelable{
     public int hour;
     public int minute;
     public boolean check;
+    public int code;
     public AlarmItem(Parcel in){
         for(int i=0; i<7; i++)
             weekday[i]=in.readInt();
@@ -19,6 +20,7 @@ public class AlarmItem implements Parcelable{
         hour=in.readInt();
         minute=in.readInt();
         if(in.readInt()==1) check=true; else check=false;
+        code=in.readInt();
     }
     public AlarmItem(){
         isAm=true;
@@ -48,5 +50,6 @@ public class AlarmItem implements Parcelable{
         dest.writeInt(hour);
         dest.writeInt(minute);
         if(check) dest.writeInt(1); else dest.writeInt(0);
+        dest.writeInt(code);
     }
 }

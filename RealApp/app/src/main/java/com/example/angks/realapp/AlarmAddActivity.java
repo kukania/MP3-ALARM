@@ -17,20 +17,32 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.util.Calendar;
+
 public class AlarmAddActivity extends Activity implements View.OnClickListener{
     AlarmItem temp;
     EditText hour;
     EditText minute;
     TextView ampm;
+    int size;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_add);
+        Intent intent=getIntent();
+        size=intent.getIntExtra("size",0);
         temp=new AlarmItem();
         hour=(EditText)findViewById(R.id.hour);
         minute=(EditText)findViewById(R.id.minute);
         ampm=(TextView)findViewById(R.id.AM_PM);
         ampm.setText("AM");
+        Calendar c=Calendar.getInstance();
+        hour.setText(c.get(Calendar.HOUR_OF_DAY) + "");
+        if(c.get(Calendar.HOUR_OF_DAY)>12)
+            ampm.setText("PM");
+        else
+            ampm.setText("AM");
+        minute.setTag(c.get(Calendar.MINUTE)+"");
         hour.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -39,29 +51,65 @@ public class AlarmAddActivity extends Activity implements View.OnClickListener{
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                int hourtime=0;
-                try{hourtime=Integer.parseInt(hour.getText().toString());}
-                catch (Exception e){
+                int hourtime = 0;
+                try {
+                    hourtime = Integer.parseInt(hour.getText().toString());
+                } catch (Exception e) {
 
                 }
-                if(hourtime>=0 && hourtime<12){
+                if (hourtime >= 0 && hourtime < 12) {
                     ampm.setText("AM");
-                }
-                else{
+                } else {
                     ampm.setText("PM");
+                }
+                if (hourtime > 24) {
+                    hourtime = 00;
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                int hourtime=0;
-                try{hourtime=Integer.parseInt(hour.getText().toString());}
-                catch (Exception e){}
-                if(hourtime>=0 && hourtime<12){
-                    ampm.setText("AM");
+                int hourtime = 0;
+                try {
+                    hourtime = Integer.parseInt(hour.getText().toString());
+                } catch (Exception e) {
                 }
-                else{
+                if (hourtime >= 0 && hourtime < 12) {
+                    ampm.setText("AM");
+                } else {
                     ampm.setText("PM");
+                }
+            }
+        });
+        minute.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int minutetime = 0;
+                try {
+                    minutetime = Integer.parseInt(hour.getText().toString());
+                } catch (Exception e) {
+
+                }
+                if (minutetime > 60) {
+                    minutetime = 00;
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                int minutetime = 0;
+                try {
+                    minutetime = Integer.parseInt(hour.getText().toString());
+                } catch (Exception e) {
+
+                }
+                if (minutetime > 60) {
+                    minutetime = 00;
                 }
             }
         });
@@ -83,7 +131,6 @@ public class AlarmAddActivity extends Activity implements View.OnClickListener{
                 }
                 break;
             case R.id.img2:
-
                 if(temp.weekday[1]==1){
                     temp.weekday[1]=0;
                     img=(ImageView)findViewById(R.id.img2);
@@ -167,13 +214,14 @@ public class AlarmAddActivity extends Activity implements View.OnClickListener{
                     temp.minute=Integer.parseInt(minute.getText().toString());
                 }
                 catch (Exception e){}
+                boolean checkFlag=false;
                 if(temp.hour>=0 && temp.hour<12){
                     temp.isAm=true;
                 }
                 else{
                     temp.isAm=false;
                 }
-
+                temp.code=size;
                 Intent intent=new Intent();
                 intent.putExtra("add",temp);
                 setResult(1, intent);

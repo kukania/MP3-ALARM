@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,41 +47,33 @@ public class playActivity extends Activity implements View.OnClickListener {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            Log.d("new Thread", "start");
-            while (true) {
+            if (getMp(-1) != null) {
+                totalDuration = getMp(-1).getDuration();
+            }
+            while (currentPosition < totalDuration && flag) {
                 if (getMp(-1) != null) {
-                    totalDuration = getMp(-1).getDuration();
-                }
-                while (currentPosition <= totalDuration && flag) {
-                    if (getMp(-1) != null)
+                    try {
                         if (getMp(-1).isPlaying()) {
                             totalDuration = getMp(-1).getDuration();
                             currentPosition = getMp(-1).getCurrentPosition();
                         }
-                    publishProgress(currentPosition, totalDuration);
+                    } catch (IllegalStateException e) {
+                        break;
+                    }
                 }
+                publishProgress(currentPosition, totalDuration);
             }
-
+            return 0;
         }
 
         @Override
         protected void onProgressUpdate(Integer... input) {
-            if (getMp(-1).isPlaying())
+            try {
+                if (getMp(-1).isPlaying())
+                    seekBar.setProgress(input[0]);
+            } catch (Exception e) {
                 seekBar.setProgress(input[0]);
-            if (input[0] > input[1] - 1000) {
-                if (getMp(-1) != null) {
-                    if (getMp(-1).isPlaying()) {
-                        getMp(-1).stop();
-                    }
-                    getMp(-1).release();
-                    getMp(0);
-                    position = (position + 1) % mySongs.size();
-                    musicSetting(position);
-                    totalDuration = getMp(-1).getDuration();
-                    getMp(-1).start();
-                }
             }
-
         }
     }
 
@@ -152,9 +145,43 @@ public class playActivity extends Activity implements View.OnClickListener {
         editor.commit();
         u = Uri.parse(mySongs.get(position).toString());
         mp = MediaPlayer.create(getApplicationContext(), u);
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (bg.getStatus() == AsyncTask.Status.RUNNING)
+                    bg.cancel(true);
+                if (getMp(-1) != null) {
+                    if (getMp(-1).isPlaying()) {
+                        getMp(-1).stop();
+                    }
+                    getMp(-1).release();
+                    getMp(0);
+                    position = (position + 1) % mySongs.size();
+                    musicSetting(position);
+                    getMp(-1).start();
+                    bg = new BackGround();
+                    bg.execute();
+                }
+            }
+        });
         seekBar.setProgress(0);
         seekBar.setMax(mp.getDuration());
         flag = true;
+    }
+
+    @Override
+    public void onActivityResult(int request, int response, Intent intent) {
+        if (bg.getStatus() == AsyncTask.Status.RUNNING)
+            bg.cancel(true);
+        Log.d("test", "test");
+        if (getMp(-1) != null) {
+            if (getMp(-1).isPlaying()) {
+                getMp(-1).stop();
+            }
+            getMp(-1).release();
+            getMp(0);
+        }
+        finish();
     }
 
     @Override
@@ -163,8 +190,8 @@ public class playActivity extends Activity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.listBtn:
                 intent = new Intent(this, MediaListAcitivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
+                intent.putExtra("songList", mySongs);
+                startActivityForResult(intent, 0);
                 break;
             case R.id.leftBtn:
                 if (!flag)
@@ -222,37 +249,20 @@ public class playActivity extends Activity implements View.OnClickListener {
                 break;
         }
     }
-
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (!isNew) {
-            if (bg.getStatus() == AsyncTask.Status.RUNNING)
-                bg.cancel(true);
-            SharedPreferences pref = getSharedPreferences("MUSIC", MODE_PRIVATE);
-            String tt = pref.getString("title", "");
-            String att = pref.getString("artist", "");
-            title.setText(tt);
-            artist.setText(att);
-            position=pref.getInt("pos",-1);
-            if (getMp(-1) != null) {
-                if (getMp(-1).isPlaying()) {
-                    getMp(-1).stop();
-                }
-                getMp(-1).release();
-                getMp(0);
-            }
-            musicSetting(position);
-            getMp(-1).start();
-            bg = new BackGround();
-            bg.execute();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Intent intent;
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                intent = new Intent(this, MediaListAcitivity.class);
+                intent.putExtra("songList", mySongs);
+                startActivityForResult(intent, 0);
+                break;
         }
-        else
-            isNew=false;
-
+        return super.onKeyDown(keyCode, event);
     }
 
-    @Override
+        @Override
     public void onBackPressed() {
         Intent intent;
         intent = new Intent(this, MediaListAcitivity.class);
