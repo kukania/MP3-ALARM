@@ -129,11 +129,13 @@ public class AlarmListActivity extends Activity implements View.OnClickListener 
                         list.get(pos).check = false;
                         holder.check.setImageResource(R.drawable.no_alarm);
                         releaseAlarm(list.get(pos));
+                        writeAlarm();
                     } else {
                         check = true;
                         list.get(pos).check = true;
                         holder.check.setImageResource(R.drawable.do_alarm);
                         setAlarm(list.get(pos));
+                        writeAlarm();
                     }
                     writeAlarm();
                 }
@@ -169,39 +171,40 @@ public class AlarmListActivity extends Activity implements View.OnClickListener 
         readAlarm();
         flag = true;
     }
-    public void releaseAlarm(AlarmItem input){
+
+    public void releaseAlarm(AlarmItem input) {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmWakeUpReceiver.class);
         PendingIntent pIntent = PendingIntent.getBroadcast(this, input.code, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pIntent);
     }
+
     public void setAlarm(AlarmItem input) {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmWakeUpReceiver.class);
-        input.code+=100;
-        PendingIntent pIntent = PendingIntent.getBroadcast(this, input.code, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Log.d("code", input.code + "");
+        intent.putExtra("code",input.code);
+        PendingIntent pIntent = PendingIntent.getBroadcast(this, input.code, intent, Intent.FILL_IN_DATA);
         //PendingIntent pIntent=PendingIntent.getBroadcast(this, input.code, intent, 0);
         Calendar c = Calendar.getInstance();
         Calendar b = Calendar.getInstance();
-        intent.putExtra("code", input.code);
         int cnt = c.get(Calendar.DAY_OF_WEEK) - 1;
-        c.set(Calendar.HOUR_OF_DAY,input.hour);
-        c.set(Calendar.MINUTE,input.minute);
-        c.set(Calendar.SECOND,0);
+        c.set(Calendar.HOUR_OF_DAY, input.hour);
+        c.set(Calendar.MINUTE, input.minute);
+        c.set(Calendar.SECOND, 0);
+        intent.putExtra("code",input.code+"");
         for (int i = 0; i < 7; i++) {
             if (input.weekday[(cnt + i) % 7] == 1) {
                 c.add(Calendar.DATE, i);
-                if (c.getTimeInMillis() < b.getTimeInMillis()) {
-                    c.add(Calendar.DATE, 7);
-                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), 1000 * 60 * 60 * 24 * 7, pIntent);
-                    Log.d("1",c.getTime().toString());
-                    c.add(Calendar.DATE, (-1) * 7);
-                } else {
-                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), 1000 * 60 * 60 * 24 * 7, pIntent);
+                if (!(c.getTimeInMillis() < b.getTimeInMillis())) {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pIntent);
                     Log.d("1", c.getTime().toString());
+                } else {
+                    c.add(Calendar.DATE, 7);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pIntent);
+                    Log.d("1", c.getTime().toString());
+                    c.add(Calendar.DATE, (-1) * 7);
                 }
-                c.add(Calendar.DATE, (-1) * i);
+                break;
             }
         }
     }
