@@ -46,6 +46,7 @@ public class MediaListAcitivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_list_acitivity);
+
         Intent intent=getIntent();
         Bundle b = intent.getExtras();
         try{
@@ -71,6 +72,7 @@ public class MediaListAcitivity extends Activity {
                 finish();
             }
         });
+
         items = new ArrayList<MusicWrapper>();
 
         for (int i = 0; i < mySongs.size(); i++) {
@@ -130,6 +132,7 @@ public class MediaListAcitivity extends Activity {
                 return convertView;
             }
         };
+
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -139,17 +142,20 @@ public class MediaListAcitivity extends Activity {
                 Intent intent = new Intent(getApplicationContext(), playActivity.class);
                 mPosition = position;
                 adapter.notifyDataSetChanged();
+
                 intent.putExtra("pos", position);
                 intent.putExtra("songList", mySongs);
                 intent.putExtra("title", items.get(position).title);
                 intent.putExtra("artist", items.get(position).artist);
                 intent.putExtra("MusicWrapper", items);
+
                 SharedPreferences pref = getSharedPreferences("MUSIC", MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
                 editor.putInt("pos", position);
                 editor.putString("title", items.get(position).title);
                 editor.putString("artist", items.get(position).artist);
                 editor.commit();
+
                 setResult(0, intent);
                 startActivity(intent);
                 finish();

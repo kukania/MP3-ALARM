@@ -118,10 +118,10 @@ public class AlarmListActivity extends Activity implements View.OnClickListener 
 
             if (temp.check) holder.check.setImageResource(R.drawable.do_alarm);
             else holder.check.setImageResource(R.drawable.no_alarm);
+
             holder.check.setOnClickListener(new View.OnClickListener() {
                 int pos = position;
                 boolean check = false;
-
                 @Override
                 public void onClick(View v) {
                     if (check) {

@@ -85,6 +85,7 @@ public class playActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
         visualInit();
+
         if (getMp(-1) != null) {
             if (getMp(-1).isPlaying()) {
                 getMp(-1).stop();
@@ -137,12 +138,13 @@ public class playActivity extends Activity implements View.OnClickListener {
         }
         title.setText(item.get(position).title);
         artist.setText(item.get(position).artist);
+
         SharedPreferences pref = getSharedPreferences("text", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-
         editor.putString("title", item.get(position).title);
         editor.putString("artist", item.get(position).artist);
         editor.commit();
+
         u = Uri.parse(mySongs.get(position).toString());
         mp = MediaPlayer.create(getApplicationContext(), u);
         mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -150,6 +152,7 @@ public class playActivity extends Activity implements View.OnClickListener {
             public void onCompletion(MediaPlayer mp) {
                 if (bg.getStatus() == AsyncTask.Status.RUNNING)
                     bg.cancel(true);
+
                 if (getMp(-1) != null) {
                     if (getMp(-1).isPlaying()) {
                         getMp(-1).stop();
@@ -173,7 +176,7 @@ public class playActivity extends Activity implements View.OnClickListener {
     public void onActivityResult(int request, int response, Intent intent) {
         if (bg.getStatus() == AsyncTask.Status.RUNNING)
             bg.cancel(true);
-        Log.d("test", "test");
+
         if (getMp(-1) != null) {
             if (getMp(-1).isPlaying()) {
                 getMp(-1).stop();
@@ -218,7 +221,6 @@ public class playActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.playBtn:
                 if (getMp(-1).isPlaying()) {
-                    //일시정지 이미지 붙이기
                     playBtn.setImageResource(R.drawable.pause);
                     getMp(-1).pause();
                 } else {

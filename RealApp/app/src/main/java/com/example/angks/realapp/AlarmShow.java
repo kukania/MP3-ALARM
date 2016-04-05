@@ -28,8 +28,6 @@ public class AlarmShow extends Activity implements View.OnClickListener{
         Intent intent=getIntent();
         code=intent.getIntExtra("code",0);
         readAlarm();
-
-        Log.d("AlarmShow", item.code + "");
         if(item.check)
             setAlarm(item);
         try {
